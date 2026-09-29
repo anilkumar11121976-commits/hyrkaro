@@ -1,0 +1,37 @@
+# Local full stack: docker compose up --build
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      MONGO_URI: mongodb://mongo:27017/hyrkro
+      CLIENT_URL: http://localhost:3000
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5000/api
+        NEXT_PUBLIC_SOCKET_URL: http://localhost:5000
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo-data:

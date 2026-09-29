@@ -1,0 +1,49 @@
+:root {
+  --hk-ink: #111111;
+  --hk-purple: #5b3fc4;
+  --hk-deep: #3f2a94;
+  --hk-lilac: #c9b8f5;
+  --hk-soft: #efe9fd;
+  --hk-line: #e6e1f0;
+  --hk-muted: #56525f;
+}
+
+html,
+body {
+  background: #ffffff;
+  color: var(--hk-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+}
+
+.Toastify__toast {
+  border-radius: 12px;
+  font-family: 'Hind', system-ui, sans-serif;
+  font-size: 15px;
+}
+
+.Toastify__progress-bar--info,
+.Toastify__progress-bar--success {
+  background: var(--hk-purple);
+}
+
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
