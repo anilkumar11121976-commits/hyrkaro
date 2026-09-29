@@ -12,43 +12,90 @@ assertEnv();
 
 const app = createApp();
 const server = http.createServer(app);
+
 initSocket(server);
 
 async function start() {
   try {
     await connectDB();
-  } catch (e) {
-    console.error('[db] Could not connect to MongoDB:', e.message);
+    console.log('[db] MongoDB connected successfully');
+
+    await repairLegacyIndexes();
+
+    startJobs();
+
+    const port = Number(env.port) || Number(process.env.PORT) || 5000;
+    const host = process.env.HOST || '0.0.0.0';
+
+    server.listen(port, host, () => {
+      console.log(`[api] HyrKro API running on ${host}:${port} (${env.nodeEnv})`);
+
+      console.log(
+        `[api] Login:    ${
+          isSmsConfigured()
+            ? 'OTP over SMS'
+            : 'DEMO OTP (no SMS keys — code shown in response)'
+        }`
+      );
+
+      console.log(
+        `[api] Payments: ${
+          isRazorpayConfigured()
+            ? 'Razorpay LIVE/TEST keys'
+            : 'DEMO mode (no Razorpay keys)'
+        }`
+      );
+
+      console.log(
+        `[api] Uploads:  ${
+          isCloudinaryConfigured()
+            ? 'Cloudinary'
+            : 'disabled (no Cloudinary keys)'
+        }`
+      );
+    });
+  } catch (error) {
+    console.error('[api] Failed to start server:', error);
     process.exit(1);
   }
-  await repairLegacyIndexes();
-  startJobs();
-  server.listen(env.port, () => {
-    console.log(`[api] HyrKro API running on port ${env.port} (${env.nodeEnv})`);
-    console.log(`[api] Login:    ${isSmsConfigured() ? 'OTP over SMS' : 'DEMO OTP (no SMS keys — code shown in response)'}`);
-    console.log(`[api] Payments: ${isRazorpayConfigured() ? 'Razorpay LIVE/TEST keys' : 'DEMO mode (no Razorpay keys)'}`);
-    console.log(`[api] Uploads:  ${isCloudinaryConfigured() ? 'Cloudinary' : 'disabled (no Cloudinary keys)'}`);
-  });
 }
 
 let shuttingDown = false;
+
 function shutdown(signal) {
   if (shuttingDown) return;
+
   shuttingDown = true;
+
   console.log(`[api] ${signal} received, shutting down...`);
+
   stopJobs();
+
   server.close(async () => {
-    await disconnectDB().catch(() => {});
+    await disconnectDB().catch((error) => {
+      console.error('[db] Disconnect error:', error.message);
+    });
+
+    console.log('[api] Server stopped');
+
     process.exit(0);
   });
-  setTimeout(() => process.exit(1), 10000).unref();
+
+  setTimeout(() => {
+    console.error('[api] Forced shutdown after timeout');
+    process.exit(1);
+  }, 10000).unref();
 }
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('unhandledRejection', (err) => console.error('[api] Unhandled rejection:', err));
-process.on('uncaughtException', (err) => {
-  console.error('[api] Uncaught exception:', err);
+
+process.on('unhandledRejection', (error) => {
+  console.error('[api] Unhandled rejection:', error);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[api] Uncaught exception:', error);
   shutdown('uncaughtException');
 });
 
