@@ -74,8 +74,8 @@ export function AuthProvider({ children }) {
 
   /* ---------------- OTP login (PDF §2) ---------------- */
 
-  const requestOtp = useCallback(async (phone) => {
-    const { data } = await api.post('/auth/otp/request', { phone });
+  const requestOtp = useCallback(async (phone, email) => {
+    const { data } = await api.post('/auth/otp/request', { phone, email });
     return data;
   }, []);
 

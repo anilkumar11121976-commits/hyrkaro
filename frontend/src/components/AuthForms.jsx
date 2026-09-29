@@ -28,6 +28,7 @@ import { brand } from '@/lib/theme';
 
 const safeNext = (n) => (n && n.startsWith('/') && !n.startsWith('//') ? n : null);
 const onlyDigits = (v, len = 10) => String(v).replace(/\D/g, '').slice(0, len);
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 /** The half-finished signup survives a page reload (common on mobile). */
 const DRAFT_KEY = 'hk_signup_draft';
@@ -95,6 +96,10 @@ export function LoginForm() {
 
   const [step, setStep] = useState('phone'); // phone | otp | profile
   const [phone, setPhone] = useState('');
+  // OTP is emailed, not texted, so this is collected alongside the phone number.
+  // Pre-filled from a previous visit (localStorage, not the phone/OTP draft below)
+  // so a returning person isn't forced to retype it every login.
+  const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [demoCode, setDemoCode] = useState('');
   const [isNewUser, setIsNewUser] = useState(null);
@@ -140,6 +145,15 @@ export function LoginForm() {
   // Restore a half-finished signup after a reload.
   useEffect(() => {
     const d = readDraft();
+    if (d?.email) setEmail(d.email);
+    else {
+      try {
+        const remembered = localStorage.getItem('hk_email');
+        if (remembered) setEmail(remembered);
+      } catch {
+        /* storage unavailable */
+      }
+    }
     if (!d?.phone) return;
     setPhone(d.phone);
     setIsNewUser(d.isNewUser ?? null);
@@ -160,16 +174,22 @@ export function LoginForm() {
   const sendOtp = async (e) => {
     e?.preventDefault();
     if (!/^[6-9]\d{9}$/.test(phone)) return toast.warn(t('auth.phoneInvalid'));
+    if (!isValidEmail(email)) return toast.warn(t('auth.emailInvalid'));
     setBusy(true);
     try {
-      const d = await requestOtp(phone);
+      const d = await requestOtp(phone, email);
       setStep('otp');
       setCooldown(30);
       setDemoCode(d.demoCode || '');
       setIsNewUser(Boolean(d.isNewUser));
       setCode('');
-      writeDraft({ phone, isNewUser: Boolean(d.isNewUser) });
-      toast.success(t('auth.otpSentTo', { phone }));
+      writeDraft({ phone, email, isNewUser: Boolean(d.isNewUser) });
+      try {
+        localStorage.setItem('hk_email', email);
+      } catch {
+        /* storage unavailable */
+      }
+      toast.success(t('auth.otpSentTo', { email }));
       setTimeout(() => otpRef.current?.focus(), 100);
     } catch (err) {
       toast.error(errMsg(err, t));
@@ -186,7 +206,7 @@ export function LoginForm() {
       const d = await verifyOtp({ phone, code, lang });
       if (d.needsProfile) {
         setRegistrationToken(d.registrationToken || '');
-        writeDraft({ phone, isNewUser: true, registrationToken: d.registrationToken });
+        writeDraft({ phone, email, isNewUser: true, registrationToken: d.registrationToken });
         setStep('profile');
         return;
       }
@@ -268,7 +288,20 @@ export function LoginForm() {
             onChange={(e) => setPhone(onlyDigits(e.target.value))}
             slotProps={{ input: { startAdornment: <InputAdornment position="start">+91</InputAdornment> } }}
           />
-          <Button type="submit" variant="contained" size="large" disabled={busy || phone.length !== 10}>
+          <TextField
+            label={t('auth.emailLabel')}
+            helperText={t('auth.emailHelp')}
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value.trim())}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            disabled={busy || phone.length !== 10 || !isValidEmail(email)}
+          >
             {busy ? t('auth.sendingOtp') : t('auth.sendOtp')}
           </Button>
           <Typography variant="body2" color="text.secondary" align="center">
@@ -287,7 +320,7 @@ export function LoginForm() {
   /* ---------------- step 2: OTP ---------------- */
   if (step === 'otp') {
     return (
-      <Shell title={isSignupIntent ? t('auth.signupTitle') : t('auth.loginTitle')} subtitle={t('auth.otpSentTo', { phone })}>
+      <Shell title={isSignupIntent ? t('auth.signupTitle') : t('auth.loginTitle')} subtitle={t('auth.otpSentTo', { email })}>
         <Stack component="form" spacing={2} onSubmit={submitOtp} noValidate>
           {isNewUser !== null && (
             <Alert severity={isNewUser ? 'info' : 'success'} icon={false}>

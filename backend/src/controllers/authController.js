@@ -6,7 +6,7 @@ import Otp, { hashCode } from '../models/Otp.js';
 import FreelancerProfile from '../models/FreelancerProfile.js';
 import { env } from '../config/env.js';
 import { CITY_SLUGS, LANGS } from '../config/constants.js';
-import { sendSms, isSmsConfigured } from '../config/sms.js';
+import { sendOtpEmail, isEmailConfigured } from '../config/mailer.js';
 import { addDays, signToken } from '../utils/helpers.js';
 import { badRequest, forbidden, unauthorized, AppError } from '../utils/AppError.js';
 
@@ -33,8 +33,13 @@ const phoneField = z
   .transform(normalizePhone)
   .refine((s) => /^[6-9]\d{9}$/.test(s), 'Sahi 10 digit mobile number likho');
 
+const emailField = z.string().trim().toLowerCase().email('Sahi email likho').max(120);
+
 export const otpRequestSchema = z.object({
   phone: phoneField,
+  // OTP now goes by email (free), not SMS — required on every request so a
+  // resend can always be delivered somewhere.
+  email: emailField,
   // Where the user was when they hit a login wall, so we can send them back (PDF §2).
   intent: z.string().trim().max(200).optional(),
 });
@@ -118,9 +123,10 @@ const genCode = () => String(crypto.randomInt(0, 10 ** env.otp.length)).padStart
 
 const REGISTRATION_TTL = '15m';
 
-/** Proof that this phone number just passed an OTP check. */
-const signRegistrationToken = (phone) =>
-  jwt.sign({ purpose: 'register', phone }, env.jwtSecret, { expiresIn: REGISTRATION_TTL });
+/** Proof that this phone number just passed an OTP check. Carries the email it
+ *  was verified with too, so completeProfile() doesn't need it resent. */
+const signRegistrationToken = (phone, email) =>
+  jwt.sign({ purpose: 'register', phone, email }, env.jwtSecret, { expiresIn: REGISTRATION_TTL });
 
 function readRegistrationToken(token) {
   let payload;
@@ -132,13 +138,13 @@ function readRegistrationToken(token) {
   if (payload?.purpose !== 'register' || !/^[6-9]\d{9}$/.test(String(payload.phone || ''))) {
     throw badRequest('Session purana ho gaya. Dobara OTP se login karo.');
   }
-  return payload.phone;
+  return { phone: payload.phone, email: payload.email || '' };
 }
 
 /* ---------------- OTP login (PDF §2) ---------------- */
 
 export async function requestOtp(req, res) {
-  const { phone } = req.valid.body;
+  const { phone, email } = req.valid.body;
   const now = new Date();
   const windowMs = env.otp.resendWindowMinutes * 60_000;
 
@@ -149,7 +155,7 @@ export async function requestOtp(req, res) {
       const mins = Math.ceil((windowMs - (now - new Date(row.windowStartedAt))) / 60_000);
       throw new AppError(`Bahut zyada OTP maange. ${mins} minute baad try karo.`, 429);
     }
-    // One SMS per 30 seconds per number.
+    // One email per 30 seconds per number.
     if (now - new Date(row.lastSentAt) < 30_000) {
       throw new AppError('Thodi der ruko, OTP abhi bheja hai.', 429);
     }
@@ -161,6 +167,7 @@ export async function requestOtp(req, res) {
 
   const code = genCode();
   const update = {
+    email,
     codeHash: hashCode(phone, code),
     expiresAt: new Date(now.getTime() + env.otp.ttlMinutes * 60_000),
     attempts: 0,
@@ -175,8 +182,8 @@ export async function requestOtp(req, res) {
     { upsert: true },
   );
 
-  const sms = await sendSms(phone, `${code} aapka HyrKro OTP hai. ${env.otp.ttlMinutes} minute mein expire ho jayega. Kisi se share mat karo.`);
-  if (!sms.ok && sms.mode !== 'demo') {
+  const mail = await sendOtpEmail(email, code, env.otp.ttlMinutes);
+  if (!mail.ok && mail.mode !== 'demo') {
     throw new AppError('OTP nahi bhej paye. Thodi der baad try karo.', 502);
   }
 
@@ -186,12 +193,11 @@ export async function requestOtp(req, res) {
     sent: true,
     isNewUser: !exists,
     expiresInSec: env.otp.ttlMinutes * 60,
-    mode: isSmsConfigured() ? 'sms' : 'demo',
-    // Demo mode only, and never in production: lets you test with no SMS account.
-    ...(env.otp.exposeInDemo && !isSmsConfigured() ? { demoCode: code } : {}),
-    message: isSmsConfigured()
-      ? `OTP bhej diya +91${phone} pe`
-      : 'Demo mode: SMS keys nahi hain, OTP screen pe dikh raha hai',
+    mode: isEmailConfigured() ? 'email' : 'demo',
+    // Demo mode only, and never once a real EMAIL_* / SMS key is set: lets you
+    // test with no email account configured.
+    ...(env.otp.exposeInDemo && !isEmailConfigured() ? { demoCode: code } : {}),
+    message: isEmailConfigured() ? `OTP bhej diya ${email} pe` : 'Demo mode: Email keys nahi hain, OTP screen pe dikh raha hai',
   });
 }
 
@@ -227,7 +233,7 @@ export async function verifyOtp(req, res) {
         verified: true,
         needsProfile: true,
         phone,
-        registrationToken: signRegistrationToken(phone),
+        registrationToken: signRegistrationToken(phone, row.email),
         expiresInSec: 15 * 60,
       });
     }
@@ -235,6 +241,7 @@ export async function verifyOtp(req, res) {
     user = await User.create({
       name,
       phone,
+      email: row.email || undefined,
       role,
       roles: [role],
       city: city || '',
@@ -248,6 +255,8 @@ export async function verifyOtp(req, res) {
     user.phoneVerifiedAt = new Date();
     user.lastSeenAt = new Date();
     if (lang) user.lang = lang;
+    // Fill in the email the first time we see one — never overwrite one already saved.
+    if (!user.email && row.email) user.email = row.email;
     // A returning user who asked to delete their account is un-deleting it by logging in.
     if (user.deletionRequestedAt) {
       user.deletionRequestedAt = undefined;
@@ -263,8 +272,9 @@ export async function verifyOtp(req, res) {
 /** Second step when verifyOtp returned needsProfile. */
 export async function completeProfile(req, res) {
   const { registrationToken, name, role, city, companyName, acceptPolicy, lang } = req.valid.body;
-  // The verified number comes from the signed token, never from the request body.
-  const phone = readRegistrationToken(registrationToken);
+  // The verified number (and the email the OTP was sent to) come from the
+  // signed token, never from the request body.
+  const { phone, email } = readRegistrationToken(registrationToken);
 
   if (acceptPolicy !== true) throw badRequest('Terms aur Privacy Policy accept karo');
   if (await User.exists({ phone })) throw badRequest('Account pehle se hai, login karo');
@@ -272,6 +282,7 @@ export async function completeProfile(req, res) {
   const user = await User.create({
     name,
     phone,
+    email: email || undefined,
     role,
     roles: [role],
     city: city || '',

@@ -8,6 +8,10 @@ import crypto from 'crypto';
 const otpSchema = new mongoose.Schema(
   {
     phone: { type: String, required: true, unique: true, index: true },
+    // The address the code was actually emailed to. Kept here (not just in the
+    // request) so the registration token and the eventual User.create() can
+    // both recover it without asking the browser to resend it.
+    email: { type: String, trim: true, lowercase: true },
     codeHash: { type: String, required: true },
     expiresAt: { type: Date, required: true },
     attempts: { type: Number, default: 0 },
