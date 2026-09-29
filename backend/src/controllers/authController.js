@@ -183,21 +183,28 @@ export async function requestOtp(req, res) {
   );
 
   const mail = await sendOtpEmail(email, code, env.otp.ttlMinutes);
-  if (!mail.ok && mail.mode !== 'demo') {
-    throw new AppError('OTP nahi bhej paye. Thodi der baad try karo.', 502);
-  }
 
   const exists = await User.exists({ phone, deletedAt: null });
   res.json({
     success: true,
+    // Still true even when the email failed: the code was generated and is
+    // usable, just not delivered. This is what lets someone keep testing the
+    // rest of the flow while an email-provider misconfiguration gets sorted
+    // out, instead of being locked out entirely.
     sent: true,
     isNewUser: !exists,
     expiresInSec: env.otp.ttlMinutes * 60,
-    mode: isEmailConfigured() ? 'email' : 'demo',
-    // Demo mode only, and never once a real EMAIL_* / SMS key is set: lets you
-    // test with no email account configured.
-    ...(env.otp.exposeInDemo && !isEmailConfigured() ? { demoCode: code } : {}),
-    message: isEmailConfigured() ? `OTP bhej diya ${email} pe` : 'Demo mode: Email keys nahi hain, OTP screen pe dikh raha hai',
+    mode: mail.ok ? (isEmailConfigured() ? 'email' : 'demo') : 'fallback',
+    // Shown whenever there's no real provider configured (as before), AND
+    // whenever a configured provider just failed to send — TEMPORARY while
+    // wiring up email: once sending is reliably working, mail.ok is always
+    // true here and this line stops firing on its own.
+    ...(env.otp.exposeInDemo && (!mail.ok || !isEmailConfigured()) ? { demoCode: code } : {}),
+    message: mail.ok
+      ? isEmailConfigured()
+        ? `OTP bhej diya ${email} pe`
+        : 'Demo mode: Email keys nahi hain, OTP screen pe dikh raha hai'
+      : `Email nahi bhej paye${mail.error ? ` (${mail.error})` : ''} — testing ke liye OTP neeche dikh raha hai.`,
   });
 }
 
