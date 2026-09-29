@@ -68,11 +68,11 @@ export default function Header() {
    * are used here. No new @mui/icons-material dependency is required.
    */
  const links = [
-  {
+  /* {
     href: '/',
     label: t('Home'),
     icon: <HomeOutlinedIcon fontSize="small" />,
-  },
+  }, */
   {
     href: '/freelancers',
     label: t('nav.findFreelancers'),
