@@ -55,7 +55,12 @@ export function errorHandler(err, req, res, _next) {
 
   if (status >= 500) {
     console.error('[error]', req.method, req.originalUrl, err);
-    if (env.isProd) message = 'Kuch gadbad ho gayi. Thodi der baad try karo.';
+    // Only scrub messages from genuinely unexpected (programmer/crash) errors.
+    // An AppError with isOperational is one we deliberately threw with a safe,
+    // already-Hinglish message for the person to read (e.g. "OTP nahi bhej
+    // paye: <reason>") — hiding that in production left no way to see why an
+    // operation failed without digging through server logs.
+    if (env.isProd && !err.isOperational) message = 'Kuch gadbad ho gayi. Thodi der baad try karo.';
   }
 
   res.status(status).json({
