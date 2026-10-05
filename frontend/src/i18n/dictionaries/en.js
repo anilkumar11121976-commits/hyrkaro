@@ -178,7 +178,7 @@ const en = {
 
   search: {
     title: 'Find freelancers',
-    found: '{count} verified freelancers found',
+    found: '{count} freelancers found',
     skillLabel: 'Work / skill',
     allCities: 'All cities',
     allCategories: 'All categories',
@@ -196,8 +196,9 @@ const en = {
     loadFailed: "Couldn't load results",
     tierCity: 'Freelancers in {city}',
     tierRegion: 'Nearby in {region}',
-    tierIndia: 'Rest of India (remote)',
+    tierIndia: 'Other cities',
     tierCityHelp: 'Your city first, then nearby, then remote.',
+    notVerified: 'Not verified',
     new: 'New',
   },
 
@@ -221,6 +222,7 @@ const en = {
     ordersDone: '{count} orders',
     chatFirstNote: 'Chat first, explain the work and agree a rate. Then hire from the chat.',
     notPublic: 'Your profile is not public yet (status: {status}). Complete it from the dashboard and submit for verification.',
+    unverifiedNotice: 'This profile is not verified yet, so chat and hiring are unavailable.',
     notFound: 'Freelancer not found',
     notFoundText: 'This profile is not available.',
     seeMore: 'See more freelancers',
@@ -690,7 +692,7 @@ const en = {
 
   footer: {
     tagline: 'Need a freelancer? HyrKro.',
-    taglineSub: 'Verified freelancers in your city, safe payments, chat first then hire.',
+    taglineSub: 'Find local talent, pay safely, chat first then hire.',
     hireIn: 'Hire in Noida',
     company: 'HyrKro',
     policy: 'Policy',

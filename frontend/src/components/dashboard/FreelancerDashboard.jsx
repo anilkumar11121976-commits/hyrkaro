@@ -24,7 +24,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { errMsg } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/i18n/I18nProvider';

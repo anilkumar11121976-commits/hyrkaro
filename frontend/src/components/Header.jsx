@@ -41,7 +41,7 @@ import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import { useAuth } from '@/context/AuthContext';
 import { useSocket } from '@/context/SocketContext';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -194,6 +194,8 @@ export default function Header() {
                 }
                 sx={{
                   fontWeight: isActive(l.href) ? 700 : 500,
+                  bgcolor: isActive(l.href) ? brand.soft : 'transparent',
+                  '&:hover': { bgcolor: brand.soft },
                 }}
               >
                 {l.label}
@@ -258,9 +260,7 @@ export default function Header() {
                 component={Link}
                 href="/login"
                 variant="text"
-                startIcon={
-                  <HomeOutlinedIcon />
-                }
+                startIcon={<LoginOutlinedIcon />}
               >
                 {t('nav.login')}
               </Button>
@@ -269,9 +269,7 @@ export default function Header() {
                 component={Link}
                 href="/login?intent=signup"
                 variant="contained"
-                startIcon={
-                  <SwapHorizIcon />
-                }
+                startIcon={<PersonAddOutlinedIcon />}
               >
                 {t('nav.signup')}
               </Button>
@@ -282,10 +280,14 @@ export default function Header() {
           {ready && user && (
             <>
               <IconButton
+                id="account-menu-button"
                 onClick={(e) =>
                   setAnchor(e.currentTarget)
                 }
                 aria-label={t('nav.account')}
+                aria-controls={anchor ? 'account-menu' : undefined}
+                aria-haspopup="menu"
+                aria-expanded={Boolean(anchor)}
                 sx={{ p: 0.5 }}
               >
                 <UserAvatar
@@ -295,9 +297,11 @@ export default function Header() {
               </IconButton>
 
               <Menu
+                id="account-menu"
                 anchorEl={anchor}
                 open={Boolean(anchor)}
                 onClose={() => setAnchor(null)}
+                MenuListProps={{ 'aria-labelledby': 'account-menu-button' }}
               >
                 <MenuItem
                   disabled
@@ -341,7 +345,7 @@ export default function Header() {
                   onClick={() => setAnchor(null)}
                 >
                   <ListItemIcon>
-                    <NotificationsNoneIcon fontSize="small" />
+                    <ReceiptLongOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
                   {t('nav.orders')}
@@ -353,7 +357,7 @@ export default function Header() {
                   onClick={() => setAnchor(null)}
                 >
                   <ListItemIcon>
-                    <ChatBubbleOutlineIcon fontSize="small" />
+                    <AssignmentOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
                   {t('nav.requirements')}
@@ -365,7 +369,7 @@ export default function Header() {
                   onClick={() => setAnchor(null)}
                 >
                   <ListItemIcon>
-                    <SwapHorizIcon fontSize="small" />
+                    <SettingsOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
                   {t('nav.settings')}
@@ -378,7 +382,7 @@ export default function Header() {
                     onClick={() => setAnchor(null)}
                   >
                     <ListItemIcon>
-                      <NotificationsNoneIcon fontSize="small" />
+                      <AdminPanelSettingsOutlinedIcon fontSize="small" />
                     </ListItemIcon>
 
                     {t('nav.adminPanel')}
@@ -415,7 +419,7 @@ export default function Header() {
 
                 <MenuItem onClick={doLogout}>
                   <ListItemIcon>
-                    <SwapHorizIcon fontSize="small" />
+                    <LogoutOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
                   {t('nav.logout')}
@@ -431,6 +435,8 @@ export default function Header() {
             }}
             onClick={() => setDrawer(true)}
             aria-label={t('nav.menu')}
+            aria-expanded={drawer}
+            aria-haspopup="true"
           >
             <MenuIcon />
           </IconButton>
@@ -451,6 +457,18 @@ export default function Header() {
         >
           <Logo size={30} />
 
+          {user && (
+            <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center', mt: 2, mb: 1.5, px: 0.5 }}>
+              <UserAvatar user={user} size={40} />
+              <Box sx={{ minWidth: 0 }}>
+                <ListItemText primary={user.name} primaryTypographyProps={{ fontWeight: 700, noWrap: true }} />
+                <ListItemText secondary={t('nav.account')} secondaryTypographyProps={{ variant: 'caption', noWrap: true }} />
+              </Box>
+            </Stack>
+          )}
+
+          {user && <Divider sx={{ mb: 1 }} />}
+
           <Box sx={{ mt: 2 }}>
             <LanguageSwitcher
               variant="buttons"
@@ -468,6 +486,11 @@ export default function Header() {
                 component={Link}
                 href={l.href}
                 selected={isActive(l.href)}
+                aria-current={isActive(l.href) ? 'page' : undefined}
+                sx={{
+                  '&.Mui-selected': { bgcolor: brand.soft, color: brand.deep },
+                  '&.Mui-selected:hover': { bgcolor: brand.soft },
+                }}
               >
                 <ListItemIcon
                   sx={{
@@ -499,7 +522,7 @@ export default function Header() {
                       color: brand.purple,
                     }}
                   >
-                    <HomeOutlinedIcon fontSize="small" />
+                    <LoginOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
                   <ListItemText
@@ -517,7 +540,7 @@ export default function Header() {
                       color: brand.purple,
                     }}
                   >
-                    <SwapHorizIcon fontSize="small" />
+                    <PersonAddOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
                   <ListItemText
@@ -613,7 +636,7 @@ export default function Header() {
                         color: brand.purple,
                       }}
                     >
-                      <SwapHorizIcon fontSize="small" />
+                      <SettingsOutlinedIcon fontSize="small" />
                     </ListItemIcon>
 
                     <ListItemText
@@ -637,7 +660,7 @@ export default function Header() {
                       color: brand.purple,
                     }}
                   >
-                    <SwapHorizIcon fontSize="small" />
+                    <LogoutOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
                   <ListItemText

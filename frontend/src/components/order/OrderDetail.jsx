@@ -26,7 +26,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { errMsg } from '@/lib/api';
 import { payMilestone } from '@/lib/razorpay';
 import { useAuth } from '@/context/AuthContext';

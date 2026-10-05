@@ -22,7 +22,7 @@ import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutlineOutlined';
 import TranslateIcon from '@mui/icons-material/Translate';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -43,7 +43,7 @@ export default function ProfileView({ id, initial }) {
   const sp = useSearchParams();
   const autoStarted = useRef(false);
 
-  // Unverified profiles are visible only to the owner/admin: fetch with auth if the server couldn't.
+  // Fetch profiles that were not available to the server-rendered request.
   useEffect(() => {
     if (initial) return;
     api
@@ -114,7 +114,7 @@ export default function ProfileView({ id, initial }) {
         </Typography>
       </Breadcrumbs>
 
-      {isOwner && p.verification?.status !== 'verified' && (
+      {isOwner && !p.isVisible && (
         <Card sx={{ p: 2, mb: 2, bgcolor: '#FFF8E6', borderColor: '#F5D48A' }}>
           <Typography>{t('profile.notPublic', { status: p.verification?.status })}</Typography>
         </Card>
@@ -273,7 +273,7 @@ export default function ProfileView({ id, initial }) {
               {t('profile.respondsIn', { hours: p.responseTimeHrs || 2 })}
             </Typography>
 
-            {!isOwner && (
+            {!isOwner && p.verification?.status === 'verified' && (
               <Stack spacing={1} sx={{ mt: 2.5 }}>
                 <Button
                   fullWidth
@@ -290,6 +290,11 @@ export default function ProfileView({ id, initial }) {
                   {t('profile.hireButton')}
                 </Button>
               </Stack>
+            )}
+            {!isOwner && p.verification?.status !== 'verified' && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2.5 }}>
+                {t('profile.unverifiedNotice')}
+              </Typography>
             )}
             {isOwner && (
               <Button fullWidth component={Link} href="/dashboard" variant="outlined" size="large" sx={{ mt: 2.5 }}>

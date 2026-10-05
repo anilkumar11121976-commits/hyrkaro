@@ -1,5 +1,5 @@
 /* Seed sample data for local testing: `npm run seed`
- * Creates: 1 admin, 2 clients, 12 verified freelancers, 3 open requirements.
+ * Creates: 1 admin, 2 clients, 12 verified and 4 unverified freelancers, 3 open requirements.
  * Login is by OTP — in demo mode the code is returned by the API, so any of
  * these phone numbers works with no SMS account.
  * Safe to re-run (skips existing phones). Do NOT run against production data.
@@ -29,6 +29,10 @@ const FREELANCERS = [
   ['Simran Kaur', '9000000010', 'delhi', 'Rajouri Garden', 'graphic-design', 'UI/UX design – apps aur websites', ['Figma', 'UI Design', 'Wireframes'], 700, 'hour', 3],
   ['Mohit Jain', '9000000011', 'mumbai', 'Andheri', 'digital-marketing', 'Local SEO & Google Business Profile', ['Local SEO', 'GBP', 'Citations'], 6000, 'project', 3],
   ['Pooja Rawat', '9000000012', 'bengaluru', 'Koramangala', 'content-writing', 'Social media captions aur ad copy', ['Captions', 'Ad Copy', 'Hinglish'], 500, 'day', 1],
+  ['Nisha Saini', '9000000013', 'noida', 'Sector 15', 'graphic-design', 'Social media creatives for growing brands', ['Canva', 'Instagram', 'Branding'], 1200, 'project', 2, 'pending'],
+  ['Kabir Khan', '9000000014', 'delhi', 'Saket', 'web-app-development', 'Frontend developer for React websites', ['React', 'JavaScript', 'CSS'], 700, 'hour', 3, 'incomplete'],
+  ['Tanya Das', '9000000015', 'gurugram', 'Sector 45', 'content-writing', 'Product descriptions and SEO articles', ['SEO', 'Copywriting', 'Research'], 900, 'project', 4, 'pending'],
+  ['Dev Malhotra', '9000000016', 'jaipur', 'Malviya Nagar', 'video-photography', 'Short-form video editor for creators', ['Video Editing', 'Reels', 'Premiere Pro'], 1800, 'project', 2, 'incomplete'],
 ];
 
 const REQUIREMENTS = [
@@ -82,7 +86,7 @@ async function run() {
   });
 
   for (let i = 0; i < FREELANCERS.length; i++) {
-    const [name, phone, city, area, category, title, skills, amount, unit, exp] = FREELANCERS[i];
+    const [name, phone, city, area, category, title, skills, amount, unit, exp, verificationStatus = 'verified'] = FREELANCERS[i];
     const user = await upsertUser({
       name,
       phone,
@@ -107,8 +111,8 @@ async function run() {
           bio: `Namaste! Main ${name} hoon, ${area}, ${city} se. ${exp}+ saal ka experience. ${title}. Time pe kaam aur saaf baat – HyrKro chat pe message karo.`,
           experienceYears: exp,
           rate: { amount, unit },
-          'verification.status': 'verified',
-          'verification.verifiedAt': new Date(),
+          'verification.status': verificationStatus,
+          ...(verificationStatus === 'verified' ? { 'verification.verifiedAt': new Date() } : {}),
           plan: { type: 'pro', proUntil: addDays(new Date(), env.proTrialDays), trialUsed: true },
           foundingFreelancer: true,
           ratingAvg: rating,
@@ -144,7 +148,8 @@ async function run() {
   console.log('  9999900001  admin      (also: admin@hyrkro.test / ' + ADMIN_PASSWORD + ' at /admin/login)');
   console.log('  9999900002  client     (Rahul Traders)');
   console.log('  9999900003  client     (Meera Shah, has 3 open requirements)');
-  console.log('  9000000001  freelancer (Aman Verma) ... 9000000012\n');
+  console.log('  9000000001–9000000012  verified sample freelancers');
+  console.log('  9000000013–9000000016  pending/incomplete sample freelancers\n');
   await disconnectDB();
 }
 

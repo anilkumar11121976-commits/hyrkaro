@@ -16,7 +16,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { errMsg } from '@/lib/api';
 import { CATEGORIES, CITIES } from '@/lib/constants';
 import { useI18n } from '@/i18n/I18nProvider';

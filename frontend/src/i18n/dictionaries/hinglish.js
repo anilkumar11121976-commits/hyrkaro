@@ -182,7 +182,7 @@ const hinglish = {
 
   search: {
     title: 'Freelancers dhoondo',
-    found: '{count} verified freelancer mile',
+    found: '{count} freelancers mile',
     skillLabel: 'Kaam / skill',
     allCities: 'Sab shehar',
     allCategories: 'Sab category',
@@ -201,8 +201,9 @@ const hinglish = {
     // PDF §3 city-first ranking
     tierCity: '{city} ke freelancers',
     tierRegion: '{region} ke aas-paas',
-    tierIndia: 'Baaki India se (remote)',
+    tierIndia: 'Dusre shehar',
     tierCityHelp: 'Pehle aapke shehar wale, phir aas-paas ke, phir remote.',
+    notVerified: 'Verified nahi',
     new: 'New',
   },
 
@@ -226,6 +227,7 @@ const hinglish = {
     ordersDone: '{count} orders',
     chatFirstNote: 'Pehle chat karo, kaam samjhao aur rate tay karo. Phir chat se hi hire karo.',
     notPublic: 'Aapki profile abhi public nahi hai (status: {status}). Dashboard se profile poori karke verification ke liye bhejo.',
+    unverifiedNotice: 'Ye profile abhi verified nahi hai, isliye chat aur hiring available nahi hain.',
     notFound: 'Freelancer nahi mila',
     notFoundText: 'Ye profile abhi available nahi hai.',
     seeMore: 'Aur freelancers dekho',
@@ -700,7 +702,7 @@ const hinglish = {
 
   footer: {
     tagline: 'Freelancer chahiye? HyrKro.',
-    taglineSub: 'Apne shehar ke verified freelancers, safe payment, pehle chat phir hire.',
+    taglineSub: 'Paas ke talent dhoondo, safe payment karo, pehle chat phir hire.',
     hireIn: 'Noida mein hire karo',
     company: 'HyrKro',
     policy: 'Policy',

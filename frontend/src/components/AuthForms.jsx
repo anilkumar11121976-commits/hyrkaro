@@ -18,7 +18,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/i18n/I18nProvider';
 import { errMsg } from '@/lib/api';

@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { API_URL, errMsg, getToken } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/i18n/I18nProvider';

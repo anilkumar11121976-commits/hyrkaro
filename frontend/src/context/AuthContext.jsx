@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { getToken, setToken } from '@/lib/api';
 import { useI18n } from '@/i18n/I18nProvider';
 

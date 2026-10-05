@@ -20,7 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { errMsg } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/i18n/I18nProvider';

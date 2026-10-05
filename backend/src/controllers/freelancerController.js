@@ -46,7 +46,7 @@ export const updateProfileSchema = z.object({
 });
 
 function buildFilter(q) {
-  const filter = { 'verification.status': 'verified', isVisible: true };
+  const filter = { isVisible: true };
   if (q.category) filter.category = q.category;
   if (q.unit) filter['rate.unit'] = q.unit;
   if (q.remoteOnly) filter.remoteOk = true;
@@ -83,13 +83,41 @@ export async function searchFreelancers(req, res) {
   const filter = buildFilter(q);
 
   if (!q.city) {
-    const [items, total] = await Promise.all([
-      FreelancerProfile.find(filter).sort(SORTS[q.sort] || SORTS.rating).skip(skip).limit(limit).populate('user', USER_PUBLIC),
-      FreelancerProfile.countDocuments(filter),
+    const [agg] = await FreelancerProfile.aggregate([
+      { $match: filter },
+      { $addFields: { verifiedRank: { $cond: [{ $eq: ['$verification.status', 'verified'] }, 0, 1] } } },
+      { $sort: { verifiedRank: 1, ...(SORTS[q.sort] || SORTS.rating), _id: 1 } },
+      {
+        $facet: {
+          items: [
+            { $skip: skip },
+            { $limit: limit },
+            {
+              $lookup: {
+                from: 'users',
+                let: { userId: '$user' },
+                pipeline: [
+                  { $match: { $expr: { $eq: ['$_id', '$$userId'] } } },
+                  { $project: { name: 1, avatar: 1, city: 1, lastSeenAt: 1, createdAt: 1 } },
+                ],
+                as: 'user',
+              },
+            },
+            { $unwind: '$user' },
+          ],
+          total: [{ $count: 'n' }],
+        },
+      },
     ]);
+    const items = (agg?.items || []).map((item) => ({
+      ...item,
+      tier: 'all',
+      isPro: item.plan?.type === 'pro' && item.plan?.proUntil && new Date(item.plan.proUntil) > new Date(),
+    }));
+    const total = agg?.total?.[0]?.n || 0;
     return res.json({
       success: true,
-      items: items.map((i) => ({ ...i.toJSON(), tier: 'all' })),
+      items,
       total,
       page,
       pages: Math.ceil(total / limit) || 1,
@@ -105,7 +133,8 @@ export async function searchFreelancers(req, res) {
     { $match: filter },
     {
       $addFields: {
-        // 0 = same city, 1 = same region, 2 = rest of India (remote only)
+        verifiedRank: { $cond: [{ $eq: ['$verification.status', 'verified'] }, 0, 1] },
+        // 0 = same city, 1 = same region, 2 = other cities
         tierRank: {
           $switch: {
             branches: [
@@ -117,9 +146,7 @@ export async function searchFreelancers(req, res) {
         },
       },
     },
-    // Outside the region, only freelancers who actually take remote work show up.
-    { $match: { $or: [{ tierRank: { $lt: 2 } }, { tierRank: 2, remoteOk: true }] } },
-    { $sort: { tierRank: 1, ...sort } },
+    { $sort: { verifiedRank: 1, tierRank: 1, ...sort, _id: 1 } },
     {
       $facet: {
         items: [
@@ -208,7 +235,7 @@ export async function getFreelancer(req, res) {
 
   const isOwner = req.user && String(req.user._id) === String(profile.user._id);
   const isAdmin = req.user?.role === 'admin';
-  if (profile.verification.status !== 'verified' && !isOwner && !isAdmin) throw notFound('Freelancer nahi mila');
+  if (!profile.isVisible && !isOwner && !isAdmin) throw notFound('Freelancer nahi mila');
 
   // PDF §14: reviews an admin hid never show.
   const reviews = await Review.find({ freelancer: profile.user._id, hidden: false })

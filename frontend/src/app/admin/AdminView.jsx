@@ -31,7 +31,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { errMsg } from '@/lib/api';
 import { useI18n } from '@/i18n/I18nProvider';
 import { Loading, PageTitle, RequireAuth, UserAvatar } from '@/components/common';

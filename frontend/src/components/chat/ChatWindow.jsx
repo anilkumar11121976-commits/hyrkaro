@@ -9,7 +9,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined';
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/toast';
 import api, { errMsg } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useSocket, useSocketEvent } from '@/context/SocketContext';

@@ -61,6 +61,9 @@ export default function FreelancerCard({ p }) {
           </Stack>
           <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: 'wrap' }}>
             {p.verification?.status === 'verified' && <VerifiedBadge small />}
+            {p.verification?.status !== 'verified' && (
+              <Chip size="small" variant="outlined" label={t('search.notVerified')} sx={{ borderColor: brand.line }} />
+            )}
             {p.remoteOk && p.tier === 'india' && (
               <Chip size="small" variant="outlined" label={t('search.remoteOnly')} sx={{ borderColor: brand.line }} />
             )}
