@@ -61,7 +61,7 @@ export default function OrderList() {
         <Loading />
       ) : state.error ? (
         <EmptyState title={t('order.loadFailed')} text={state.error} />
-      ) : state.items.length === 0 ? (
+      ) :!Array.isArray(state.items) || state.items.length === 0 ? (
         <EmptyState
           title={t('order.none')}
           text={isFreelancer ? t('order.noneFreelancer') : t('order.noneClient')}

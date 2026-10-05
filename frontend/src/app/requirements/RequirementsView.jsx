@@ -302,7 +302,7 @@ export default function RequirementsView() {
         <Loading />
       ) : state.error ? (
         <EmptyState title={t('search.loadFailed')} text={state.error} action={t('common.retry')} onAction={load} />
-      ) : state.items.length === 0 ? (
+      ) : !Array.isArray(state.items) || state.items.length === 0? (
         <EmptyState
           title={tab === 'mine' ? t('requirement.noRequirements') : t('requirement.none')}
           text={tab === 'mine' ? t('requirement.noRequirementsSub') : t('requirement.noneSub')}
