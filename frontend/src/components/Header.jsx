@@ -1,9 +1,8 @@
+"use client";
 
-'use client';
-
-import Link from 'next/link';
-import { useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import Link from "next/link";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   AppBar,
@@ -23,32 +22,32 @@ import {
   Stack,
   Toolbar,
   Tooltip,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
-import WorkOutlinedIcon from '@mui/icons-material/WorkOutlined';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
-import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+import WorkOutlinedIcon from "@mui/icons-material/WorkOutlined";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 
-import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import { toast } from '@/lib/toast';
-import { useAuth } from '@/context/AuthContext';
-import { useSocket } from '@/context/SocketContext';
-import { useI18n } from '@/i18n/I18nProvider';
-import { errMsg } from '@/lib/api';
-import { Logo, UserAvatar } from './common';
-import LanguageSwitcher from './LanguageSwitcher';
-import { brand } from '@/lib/theme';
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
+import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import { toast } from "@/lib/toast";
+import { useAuth } from "@/context/AuthContext";
+import { useSocket } from "@/context/SocketContext";
+import { useI18n } from "@/i18n/I18nProvider";
+import { errMsg } from "@/lib/api";
+import { Logo, UserAvatar } from "./common";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { brand } from "@/lib/theme";
 
 export default function Header() {
   const { user, roles, logout, switchRole, ready } = useAuth();
@@ -60,79 +59,77 @@ export default function Header() {
   const [switching, setSwitching] = useState(false);
 
   const router = useRouter();
-  const pathname = usePathname() || '/';
+  const pathname = usePathname() || "/";
 
   /*
    * IMPORTANT:
    * Only icons that already existed in your original working file
    * are used here. No new @mui/icons-material dependency is required.
    */
- const links = [
-  /* {
+  const links = [
+    /* {
     href: '/',
     label: t('Home'),
     icon: <HomeOutlinedIcon fontSize="small" />,
   }, */
-  {
-    href: '/freelancers',
-    label: t('nav.findFreelancers'),
-   icon: <PeopleOutlinedIcon fontSize="small" />,
-  },
-  {
-    href: '/requirements',
-    label: t('nav.requirements'),
-    icon: <AssignmentOutlinedIcon fontSize="small" />,
-  },
-  {
-    href: '/cities',
-    label: t('nav.cities'),
-    icon: <LocationOnOutlinedIcon fontSize="small" />,
-  },
-  ...(user
-    ? [
-        {
-          href: '/orders',
-          label: t('nav.orders'),
-          icon: <ReceiptLongOutlinedIcon fontSize="small" />,
-        },
-      ]
-    : [
-        {
-          href: '/login?role=freelancer',
-          label: t('nav.becomeFreelancer'),
-         icon: <WorkOutlinedIcon fontSize="small" /> ,
-        },
-      ]),
-  ...(user?.role === 'admin'
-    ? [
-        {
-          href: '/admin',
-          label: t('nav.admin'),
-          icon: <AdminPanelSettingsOutlinedIcon fontSize="small" />,
-        },
-      ]
-    : []),
-];
+    {
+      href: "/freelancers",
+      label: t("nav.findFreelancers"),
+      icon: <PeopleOutlinedIcon fontSize="small" />,
+    },
+    {
+      href: "/requirements",
+      label: t("nav.requirements"),
+      icon: <AssignmentOutlinedIcon fontSize="small" />,
+    },
+    {
+      href: "/cities",
+      label: t("nav.cities"),
+      icon: <LocationOnOutlinedIcon fontSize="small" />,
+    },
+    ...(user
+      ? [
+          {
+            href: "/orders",
+            label: t("nav.orders"),
+            icon: <ReceiptLongOutlinedIcon fontSize="small" />,
+          },
+        ]
+      : [
+          {
+            href: "/login?role=freelancer",
+            label: t("nav.becomeFreelancer"),
+            icon: <WorkOutlinedIcon fontSize="small" />,
+          },
+        ]),
+    ...(user?.role === "admin"
+      ? [
+          {
+            href: "/admin",
+            label: t("nav.admin"),
+            icon: <AdminPanelSettingsOutlinedIcon fontSize="small" />,
+          },
+        ]
+      : []),
+  ];
   /**
    * "/" is a prefix of every route, so the home link needs an exact match.
    */
   const isActive = (href) => {
-    const path = href.split('?')[0];
+    const path = href.split("?")[0];
 
-    return path === '/'
-      ? pathname === '/'
-      : pathname.startsWith(path);
+    return path === "/" ? pathname === "/" : pathname.startsWith(path);
   };
 
   const doLogout = () => {
     setAnchor(null);
     logout();
-    router.push('/');
+    router.push("/");
   };
 
   /** One account switches between client and freelancer. */
-  const otherRole = user?.role === 'client' ? 'freelancer' : 'client';
-  const canSwitch = user && user.role !== 'admin';
+  const otherRole = user?.role === "client" ? "freelancer" : "client";
+  const canSwitch = user && user.role !== "admin";
 
   const doSwitch = async () => {
     setAnchor(null);
@@ -142,12 +139,12 @@ export default function Header() {
       await switchRole(otherRole);
 
       const label =
-        otherRole === 'client'
-          ? t('nav.switchToClient')
-          : t('nav.switchToFreelancer');
+        otherRole === "client"
+          ? t("nav.switchToClient")
+          : t("nav.switchToFreelancer");
 
-      toast.success(t('nav.switchedTo', { role: label }));
-      router.push('/dashboard');
+      toast.success(t("nav.switchedTo", { role: label }));
+      router.push("/dashboard");
     } catch (e) {
       toast.error(errMsg(e, t));
     } finally {
@@ -179,7 +176,7 @@ export default function Header() {
             spacing={0.5}
             sx={{
               ml: 2,
-              display: { xs: 'none', lg: 'flex' },
+              display: { xs: "none", lg: "flex" },
             }}
           >
             {links.map((l) => (
@@ -189,13 +186,11 @@ export default function Header() {
                 href={l.href}
                 color="primary"
                 startIcon={l.icon}
-                aria-current={
-                  isActive(l.href) ? 'page' : undefined
-                }
+                aria-current={isActive(l.href) ? "page" : undefined}
                 sx={{
                   fontWeight: isActive(l.href) ? 700 : 500,
-                  bgcolor: isActive(l.href) ? brand.soft : 'transparent',
-                  '&:hover': { bgcolor: brand.soft },
+                  bgcolor: isActive(l.href) ? brand.soft : "transparent",
+                  "&:hover": { bgcolor: brand.soft },
                 }}
               >
                 {l.label}
@@ -205,41 +200,30 @@ export default function Header() {
 
           <Box sx={{ flex: 1 }} />
 
-          <LanguageSwitcher
-            variant="icon"
-            size="small"
-          />
+          <LanguageSwitcher variant="icon" size="small" />
 
           {/* Notifications + Chats */}
           {ready && user && (
             <>
-              <Tooltip title={t('nav.notifications')}>
+              <Tooltip title={t("nav.notifications")}>
                 <IconButton
                   component={Link}
                   href="/notifications"
-                  aria-label={t('nav.notifications')}
+                  aria-label={t("nav.notifications")}
                 >
-                  <Badge
-                    badgeContent={notifUnread}
-                    color="secondary"
-                    max={99}
-                  >
+                  <Badge badgeContent={notifUnread} color="secondary" max={99}>
                     <NotificationsNoneIcon />
                   </Badge>
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title={t('nav.chats')}>
+              <Tooltip title={t("nav.chats")}>
                 <IconButton
                   component={Link}
                   href="/inbox"
-                  aria-label={t('nav.chats')}
+                  aria-label={t("nav.chats")}
                 >
-                  <Badge
-                    badgeContent={unread}
-                    color="secondary"
-                    max={99}
-                  >
+                  <Badge badgeContent={unread} color="secondary" max={99}>
                     <ChatBubbleOutlineIcon />
                   </Badge>
                 </IconButton>
@@ -253,7 +237,7 @@ export default function Header() {
               direction="row"
               spacing={1}
               sx={{
-                display: { xs: 'none', sm: 'flex' },
+                display: { xs: "none", sm: "flex" },
               }}
             >
               <Button
@@ -262,7 +246,7 @@ export default function Header() {
                 variant="text"
                 startIcon={<LoginOutlinedIcon />}
               >
-                {t('nav.login')}
+                {t("nav.login")}
               </Button>
 
               <Button
@@ -271,7 +255,7 @@ export default function Header() {
                 variant="contained"
                 startIcon={<PersonAddOutlinedIcon />}
               >
-                {t('nav.signup')}
+                {t("nav.signup")}
               </Button>
             </Stack>
           )}
@@ -281,19 +265,14 @@ export default function Header() {
             <>
               <IconButton
                 id="account-menu-button"
-                onClick={(e) =>
-                  setAnchor(e.currentTarget)
-                }
-                aria-label={t('nav.account')}
-                aria-controls={anchor ? 'account-menu' : undefined}
+                onClick={(e) => setAnchor(e.currentTarget)}
+                aria-label={t("nav.account")}
+                aria-controls={anchor ? "account-menu" : undefined}
                 aria-haspopup="menu"
                 aria-expanded={Boolean(anchor)}
                 sx={{ p: 0.5 }}
               >
-                <UserAvatar
-                  user={user}
-                  size={36}
-                />
+                <UserAvatar user={user} size={36} />
               </IconButton>
 
               <Menu
@@ -301,12 +280,16 @@ export default function Header() {
                 anchorEl={anchor}
                 open={Boolean(anchor)}
                 onClose={() => setAnchor(null)}
-                MenuListProps={{ 'aria-labelledby': 'account-menu-button' }}
+                slotProps={{
+                  list: {
+                    "aria-labelledby": "account-menu-button",
+                  },
+                }}
               >
                 <MenuItem
                   disabled
                   sx={{
-                    opacity: '1 !important',
+                    opacity: "1 !important",
                     fontWeight: 600,
                   }}
                 >
@@ -324,7 +307,7 @@ export default function Header() {
                     <HomeOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  {t('nav.dashboard')}
+                  {t("nav.dashboard")}
                 </MenuItem>
 
                 <MenuItem
@@ -336,7 +319,7 @@ export default function Header() {
                     <ChatBubbleOutlineIcon fontSize="small" />
                   </ListItemIcon>
 
-                  {t('nav.chats')}
+                  {t("nav.chats")}
                 </MenuItem>
 
                 <MenuItem
@@ -348,7 +331,7 @@ export default function Header() {
                     <ReceiptLongOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  {t('nav.orders')}
+                  {t("nav.orders")}
                 </MenuItem>
 
                 <MenuItem
@@ -360,7 +343,7 @@ export default function Header() {
                     <AssignmentOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  {t('nav.requirements')}
+                  {t("nav.requirements")}
                 </MenuItem>
 
                 <MenuItem
@@ -372,10 +355,10 @@ export default function Header() {
                     <SettingsOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  {t('nav.settings')}
+                  {t("nav.settings")}
                 </MenuItem>
 
-                {user.role === 'admin' && (
+                {user.role === "admin" && (
                   <MenuItem
                     component={Link}
                     href="/admin"
@@ -385,7 +368,7 @@ export default function Header() {
                       <AdminPanelSettingsOutlinedIcon fontSize="small" />
                     </ListItemIcon>
 
-                    {t('nav.adminPanel')}
+                    {t("nav.adminPanel")}
                   </MenuItem>
                 )}
 
@@ -393,10 +376,7 @@ export default function Header() {
                   <>
                     <Divider />
 
-                    <MenuItem
-                      onClick={doSwitch}
-                      disabled={switching}
-                    >
+                    <MenuItem onClick={doSwitch} disabled={switching}>
                       <ListItemIcon>
                         <SwapHorizIcon
                           fontSize="small"
@@ -406,11 +386,9 @@ export default function Header() {
                         />
                       </ListItemIcon>
 
-                      {otherRole === 'client'
-                        ? t('nav.switchToClient')
-                        : t(
-                            'nav.switchToFreelancer'
-                          )}
+                      {otherRole === "client"
+                        ? t("nav.switchToClient")
+                        : t("nav.switchToFreelancer")}
                     </MenuItem>
                   </>
                 )}
@@ -422,7 +400,7 @@ export default function Header() {
                     <LogoutOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  {t('nav.logout')}
+                  {t("nav.logout")}
                 </MenuItem>
               </Menu>
             </>
@@ -431,10 +409,10 @@ export default function Header() {
           {/* Mobile Menu */}
           <IconButton
             sx={{
-              display: { lg: 'none' },
+              display: { lg: "none" },
             }}
             onClick={() => setDrawer(true)}
-            aria-label={t('nav.menu')}
+            aria-label={t("nav.menu")}
             aria-expanded={drawer}
             aria-haspopup="true"
           >
@@ -444,11 +422,7 @@ export default function Header() {
       </Container>
 
       {/* Mobile Drawer */}
-      <Drawer
-        anchor="right"
-        open={drawer}
-        onClose={() => setDrawer(false)}
-      >
+      <Drawer anchor="right" open={drawer} onClose={() => setDrawer(false)}>
         <Box
           sx={{
             width: 280,
@@ -458,11 +432,24 @@ export default function Header() {
           <Logo size={30} />
 
           {user && (
-            <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center', mt: 2, mb: 1.5, px: 0.5 }}>
+            <Stack
+              direction="row"
+              spacing={1.25}
+              sx={{ alignItems: "center", mt: 2, mb: 1.5, px: 0.5 }}
+            >
               <UserAvatar user={user} size={40} />
               <Box sx={{ minWidth: 0 }}>
-                <ListItemText primary={user.name} primaryTypographyProps={{ fontWeight: 700, noWrap: true }} />
-                <ListItemText secondary={t('nav.account')} secondaryTypographyProps={{ variant: 'caption', noWrap: true }} />
+                <ListItemText
+                  primary={user.name}
+                  primaryTypographyProps={{ fontWeight: 700, noWrap: true }}
+                />
+                <ListItemText
+                  secondary={t("nav.account")}
+                  secondaryTypographyProps={{
+                    variant: "caption",
+                    noWrap: true,
+                  }}
+                />
               </Box>
             </Stack>
           )}
@@ -470,26 +457,20 @@ export default function Header() {
           {user && <Divider sx={{ mb: 1 }} />}
 
           <Box sx={{ mt: 2 }}>
-            <LanguageSwitcher
-              variant="buttons"
-              size="small"
-            />
+            <LanguageSwitcher variant="buttons" size="small" />
           </Box>
 
-          <List
-            sx={{ mt: 1 }}
-            onClick={() => setDrawer(false)}
-          >
+          <List sx={{ mt: 1 }} onClick={() => setDrawer(false)}>
             {links.map((l) => (
               <ListItemButton
                 key={l.href}
                 component={Link}
                 href={l.href}
                 selected={isActive(l.href)}
-                aria-current={isActive(l.href) ? 'page' : undefined}
+                aria-current={isActive(l.href) ? "page" : undefined}
                 sx={{
-                  '&.Mui-selected': { bgcolor: brand.soft, color: brand.deep },
-                  '&.Mui-selected:hover': { bgcolor: brand.soft },
+                  "&.Mui-selected": { bgcolor: brand.soft, color: brand.deep },
+                  "&.Mui-selected:hover": { bgcolor: brand.soft },
                 }}
               >
                 <ListItemIcon
@@ -501,9 +482,7 @@ export default function Header() {
                   {l.icon}
                 </ListItemIcon>
 
-                <ListItemText
-                  primary={l.label}
-                />
+                <ListItemText primary={l.label} />
               </ListItemButton>
             ))}
 
@@ -512,10 +491,7 @@ export default function Header() {
             {/* Guest Mobile */}
             {!user && (
               <>
-                <ListItemButton
-                  component={Link}
-                  href="/login"
-                >
+                <ListItemButton component={Link} href="/login">
                   <ListItemIcon
                     sx={{
                       minWidth: 34,
@@ -525,15 +501,10 @@ export default function Header() {
                     <LoginOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={t('nav.login')}
-                  />
+                  <ListItemText primary={t("nav.login")} />
                 </ListItemButton>
 
-                <ListItemButton
-                  component={Link}
-                  href="/login?intent=signup"
-                >
+                <ListItemButton component={Link} href="/login?intent=signup">
                   <ListItemIcon
                     sx={{
                       minWidth: 34,
@@ -543,9 +514,7 @@ export default function Header() {
                     <PersonAddOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={t('nav.signup')}
-                  />
+                  <ListItemText primary={t("nav.signup")} />
                 </ListItemButton>
               </>
             )}
@@ -553,10 +522,7 @@ export default function Header() {
             {/* Logged-in Mobile */}
             {user && (
               <>
-                <ListItemButton
-                  component={Link}
-                  href="/dashboard"
-                >
+                <ListItemButton component={Link} href="/dashboard">
                   <ListItemIcon
                     sx={{
                       minWidth: 34,
@@ -566,15 +532,10 @@ export default function Header() {
                     <HomeOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={t('nav.dashboard')}
-                  />
+                  <ListItemText primary={t("nav.dashboard")} />
                 </ListItemButton>
 
-                <ListItemButton
-                  component={Link}
-                  href="/notifications"
-                >
+                <ListItemButton component={Link} href="/notifications">
                   <ListItemIcon
                     sx={{
                       minWidth: 34,
@@ -584,15 +545,10 @@ export default function Header() {
                     <NotificationsNoneIcon fontSize="small" />
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={t('nav.notifications')}
-                  />
+                  <ListItemText primary={t("nav.notifications")} />
                 </ListItemButton>
 
-                <ListItemButton
-                  component={Link}
-                  href="/inbox"
-                >
+                <ListItemButton component={Link} href="/inbox">
                   <ListItemIcon
                     sx={{
                       minWidth: 34,
@@ -602,15 +558,10 @@ export default function Header() {
                     <ChatBubbleOutlineIcon fontSize="small" />
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={t('nav.chats')}
-                  />
+                  <ListItemText primary={t("nav.chats")} />
                 </ListItemButton>
 
-                <ListItemButton
-                  component={Link}
-                  href="/settings"
-                >
+                <ListItemButton component={Link} href="/settings">
                   <ListItemIcon
                     sx={{
                       minWidth: 34,
@@ -620,16 +571,11 @@ export default function Header() {
                     <SwapHorizIcon fontSize="small" />
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={t('nav.settings')}
-                  />
+                  <ListItemText primary={t("nav.settings")} />
                 </ListItemButton>
 
                 {canSwitch && (
-                  <ListItemButton
-                    onClick={doSwitch}
-                    disabled={switching}
-                  >
+                  <ListItemButton onClick={doSwitch} disabled={switching}>
                     <ListItemIcon
                       sx={{
                         minWidth: 34,
@@ -641,13 +587,9 @@ export default function Header() {
 
                     <ListItemText
                       primary={
-                        otherRole === 'client'
-                          ? t(
-                              'nav.switchToClient'
-                            )
-                          : t(
-                              'nav.switchToFreelancer'
-                            )
+                        otherRole === "client"
+                          ? t("nav.switchToClient")
+                          : t("nav.switchToFreelancer")
                       }
                     />
                   </ListItemButton>
@@ -663,9 +605,7 @@ export default function Header() {
                     <LogoutOutlinedIcon fontSize="small" />
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={t('nav.logout')}
-                  />
+                  <ListItemText primary={t("nav.logout")} />
                 </ListItemButton>
               </>
             )}
